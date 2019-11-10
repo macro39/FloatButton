@@ -94,8 +94,8 @@ class FloatButtonService: Service() {
                         initX = shiftX
                         initY = shiftY
 
-                        marginX = shiftX
-                        marginY = shiftY
+                        marginX = layoutParams.x
+                        marginY = layoutParams.y
 
                         return true
                     }
@@ -132,8 +132,17 @@ class FloatButtonService: Service() {
 
                     MotionEvent.ACTION_MOVE -> {
 
-                        layoutParams.x = mDisplaySize.x - shiftX
-                        layoutParams.y = shiftY
+//                        layoutParams.x = shiftX + marginX - initX
+//                        layoutParams.y = shiftY + marginY - initY
+
+                        if (isOnRightSide) {
+                            layoutParams.x = mDisplaySize.x - shiftX
+                        } else {
+                            layoutParams.x = mDisplaySize.x - shiftX - mFloatButton.width
+                        }
+
+
+                        layoutParams.y = shiftY - mFloatButton.height
 
                         mWindowManager.updateViewLayout(mFloatButton, layoutParams)
 
@@ -150,7 +159,7 @@ class FloatButtonService: Service() {
 
     fun floatButtonClicked() {
 
-        var toast =  Toast.makeText(this, "Clicked", Toast.LENGTH_LONG)
+        var toast =  Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT)
         toast.show()
     }
 
