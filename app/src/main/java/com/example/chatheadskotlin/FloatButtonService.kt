@@ -23,7 +23,7 @@ class FloatButtonService: Service() {
     private lateinit var mWindowManager: WindowManager
     private lateinit var mDisplaySize: Point
 
-    private var isOnRightSide = true;
+    private var isOnRightSide = true
 
     private var initX: Int = 0
     private var initY: Int = 0
@@ -72,16 +72,6 @@ class FloatButtonService: Service() {
 
         mDisplaySize.set(width, height)
 
-//        mFloatButton.setOnClickListener {
-//            var toast =  Toast.makeText(this, "Fungujem", Toast.LENGTH_LONG)
-//            toast.show()
-//        }
-
-        mFloatButton.setOnClickListener {
-
-
-        }
-
         mFloatButton.setOnTouchListener(object: View.OnTouchListener {
             var start: Long = 0
             var end: Long = 0
@@ -100,7 +90,7 @@ class FloatButtonService: Service() {
 
                     MotionEvent.ACTION_DOWN -> {
                         start = System.currentTimeMillis()
-//
+
                         initX = shiftX
                         initY = shiftY
 
@@ -141,14 +131,9 @@ class FloatButtonService: Service() {
                     }
 
                     MotionEvent.ACTION_MOVE -> {
-                        var diffX = shiftX - initX
-                        var diffY = shiftY - initY
 
-                        destinationX = diffX + marginX
-                        destinationY = diffY + marginY
-
-                        layoutParams.x = destinationX
-                        layoutParams.y = destinationY
+                        layoutParams.x = mDisplaySize.x - shiftX
+                        layoutParams.y = shiftY
 
                         mWindowManager.updateViewLayout(mFloatButton, layoutParams)
 
@@ -164,12 +149,13 @@ class FloatButtonService: Service() {
     }
 
     fun floatButtonClicked() {
+
         var toast =  Toast.makeText(this, "Clicked", Toast.LENGTH_LONG)
         toast.show()
     }
 
     fun changePosition(currentX: Int) {
-        if (currentX <= (mDisplaySize.x / 2)) {
+        if (currentX > (mDisplaySize.x / 2)) {
             isOnRightSide = false
             moveLeft(currentX)
         } else {
@@ -184,7 +170,10 @@ class FloatButtonService: Service() {
 
             override fun onTick(millisUntilFinished: Long) {
                 var step = (500 - millisUntilFinished) / 5
-                mParams.x = mDisplaySize.x + (getMoveValue(step, currentX) - mParams.width).toInt()
+
+                mParams.x = mDisplaySize.x + (currentX * currentX * step).toInt() - mFloatButton.width
+                //mParams.x = mDisplaySize.x + (getMoveValue(step, currentX) - mParams.width).toInt()
+
                 mWindowManager.updateViewLayout(mFloatButton, mParams)
             }
 
@@ -206,7 +195,8 @@ class FloatButtonService: Service() {
             override fun onTick(millisUntilFinished: Long) {
                 var step = (500 - millisUntilFinished) / 5
 
-                mParams.x = 0 - getMoveValue(step, x).toInt()
+                mParams.x = 0 - (currentX * currentX * step).toInt()
+                //mParams.x = 0 - getMoveValue(step, x).toInt()
 
                 mWindowManager.updateViewLayout(mFloatButton, mParams)
             }
