@@ -105,7 +105,7 @@ class FloatButtonService: Service() {
                         var diffX = shiftX - initX
                         var diffY = shiftY - initY
 
-                        if (abs(diffX) < 5 && abs(diffY) < 5) {
+                        if (abs(diffX) < 10 && abs(diffY) < 10) {
                             end = System.currentTimeMillis()
 
                             if ((end - start) < 300) {
