@@ -23,10 +23,6 @@
             android:label="Chat with Android">
 
         </activity>
-        <service
-            android:name=".FloatButtonService"
-            android:enabled="true"
-            android:exported="false"/>
     </application>
 
 </manifest>

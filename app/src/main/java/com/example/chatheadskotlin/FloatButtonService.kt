@@ -11,6 +11,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.view.*
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.exp
@@ -18,7 +19,10 @@ import kotlin.math.exp
 /**
  * Created by Kamil Macek on 4. 11. 2019.
  */
-class FloatButtonService: Service() {
+class FloatButtonService(
+    val context: Context
+) {
+
     private lateinit var mFloatButton: View
     private lateinit var mWindowManager: WindowManager
     private lateinit var mDisplaySize: Point
@@ -31,14 +35,10 @@ class FloatButtonService: Service() {
     private var marginX: Int = 0
     private var marginY: Int = 0
 
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
-    }
+    fun onCreate() {
+        //super.onCreate()
 
-    override fun onCreate() {
-        super.onCreate()
-
-        mFloatButton = LayoutInflater.from(this).inflate(R.layout.float_button, null)
+        mFloatButton = LayoutInflater.from(context).inflate(R.layout.float_button, null)
 
 
         // check for android version
@@ -62,8 +62,9 @@ class FloatButtonService: Service() {
         params.x = 0
         params.y = 100
 
-        mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         mWindowManager.addView(mFloatButton, params)
+        // WindowManager Bad token exe... need to fix
 
         val width = mWindowManager.defaultDisplay.width
         val height = mWindowManager.defaultDisplay.height
@@ -88,61 +89,70 @@ class FloatButtonService: Service() {
 
                 when (motionEvent.action) {
 
-                    MotionEvent.ACTION_DOWN -> {
-                        start = System.currentTimeMillis()
-
-                        initX = shiftX
-                        initY = shiftY
-
-                        marginX = layoutParams.x
-                        marginY = layoutParams.y
-
-                        return true
-                    }
-
-                    MotionEvent.ACTION_UP -> {
-
-                        var diffX = shiftX - initX
-                        var diffY = shiftY - initY
-
-                        if (abs(diffX) < 10 && abs(diffY) < 10) {
-                            end = System.currentTimeMillis()
-
-                            if ((end - start) < 300) {
-                                floatButtonClicked()
-                            }
-                        }
-
-                        destinationY = marginY + diffY
-
-                        if (destinationY < 0) {
-                            destinationY = 0
-                        }
-
-                        if ((destinationY + mFloatButton.height) > mDisplaySize.y) {
-                            destinationY = mDisplaySize.y - mFloatButton.height
-                        }
-
-                        layoutParams.y = destinationY
-
-                        changePosition(shiftX)
-
-                        return true
-                    }
+//                    MotionEvent.ACTION_DOWN -> {
+//                        start = System.currentTimeMillis()
+//
+//                        initX = shiftX
+//                        initY = shiftY
+//
+//                        marginX = layoutParams.x
+//                        marginY = layoutParams.y
+//
+//                        return true
+//                    }
+//
+//                    MotionEvent.ACTION_UP -> {
+//
+//                        var diffX = shiftX - initX
+//                        var diffY = shiftY - initY
+//
+//                        if (abs(diffX) < 10 && abs(diffY) < 10) {
+//                            end = System.currentTimeMillis()
+//
+//                            if ((end - start) < 300) {
+//                                floatButtonClicked()
+//                            }
+//                        }
+//
+//                        destinationY = marginY + diffY
+//
+//                        if (destinationY < 0) {
+//                            destinationY = 0
+//                        }
+//
+//                        if ((destinationY + mFloatButton.height) > mDisplaySize.y) {
+//                            destinationY = mDisplaySize.y - mFloatButton.height
+//                        }
+//
+//                        layoutParams.y = destinationY
+//
+//                        changePosition(shiftX)
+//
+//                        return true
+//                    }
 
                     MotionEvent.ACTION_MOVE -> {
 
 //                        layoutParams.x = shiftX + marginX - initX
 //                        layoutParams.y = shiftY + marginY - initY
 
-                        if (isOnRightSide) {
-                            layoutParams.x = mDisplaySize.x - shiftX
+//                        if (isOnRightSide) {
+//                            layoutParams.x = mDisplaySize.x - shiftX
+//                        } else {
+//                            layoutParams.x = mDisplaySize.x - shiftX - mFloatButton.width
+//                        }
+//
+//
+//                        layoutParams.y = shiftY - mFloatButton.height
+
+
+                        if (shiftX > (mDisplaySize.x / 2)) {
+                            layoutParams.x = 0
                         } else {
-                            layoutParams.x = mDisplaySize.x - shiftX - mFloatButton.width
+                            layoutParams.x = mDisplaySize.x - mFloatButton.width
                         }
 
-
-                        layoutParams.y = shiftY - mFloatButton.height
+                        layoutParams.y = shiftY - mFloatButton.width
 
                         mWindowManager.updateViewLayout(mFloatButton, layoutParams)
 
@@ -159,7 +169,7 @@ class FloatButtonService: Service() {
 
     fun floatButtonClicked() {
 
-        var toast =  Toast.makeText(this, "Clicked", Toast.LENGTH_SHORT)
+        var toast =  Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT)
         toast.show()
     }
 
@@ -227,8 +237,8 @@ class FloatButtonService: Service() {
 
 
 
-    override fun onDestroy() {
-        super.onDestroy()
+    fun onDestroy() {
+        //super.onDestroy()
 
         mWindowManager.removeView(mFloatButton)
     }

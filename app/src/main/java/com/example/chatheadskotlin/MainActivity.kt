@@ -1,6 +1,5 @@
 package com.example.chatheadskotlin
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -9,15 +8,17 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatButton
-import androidx.constraintlayout.widget.ConstraintLayout
 
 class MainActivity : AppCompatActivity() {
 
     var CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084
+    lateinit var floatButtonService: FloatButtonService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        floatButtonService = FloatButtonService(this)
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
 
@@ -32,7 +33,8 @@ class MainActivity : AppCompatActivity() {
 
     fun initializeView() {
         findViewById<AppCompatButton>(R.id.add_header).setOnClickListener {
-            startService(Intent(this, FloatButtonService::class.java))
+//            startService(Intent(this, FloatButtonService::class.java))
+            floatButtonService.onCreate()
         }
         findViewById<AppCompatButton>(R.id.remove_header).setOnClickListener {
             stopService(Intent(this, FloatButtonService::class.java))
@@ -53,5 +55,23 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        floatButtonService.onDestroy()
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        floatButtonService.onDestroy()
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        floatButtonService.onCreate()
     }
 }
