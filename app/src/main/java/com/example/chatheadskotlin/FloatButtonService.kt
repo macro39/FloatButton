@@ -1,17 +1,13 @@
 package com.example.chatheadskotlin
 
-import android.app.Service
 import android.content.Context
-import android.content.Intent
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
 import android.os.CountDownTimer
-import android.os.Handler
-import android.os.IBinder
 import android.view.*
-import android.widget.Toast
-import androidx.core.content.ContextCompat.getSystemService
+import android.widget.ImageView
+import android.widget.RelativeLayout
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.exp
@@ -23,7 +19,9 @@ class FloatButtonService(
     val context: Context
 ) {
 
-    private lateinit var mFloatButton: View
+    private lateinit var mFloatView: View
+    private lateinit var expandedView: View
+    private lateinit var bubbleView: View
     private lateinit var mWindowManager: WindowManager
     private lateinit var mDisplaySize: Point
 
@@ -38,7 +36,7 @@ class FloatButtonService(
     fun onCreate() {
         //super.onCreate()
 
-        mFloatButton = LayoutInflater.from(context).inflate(R.layout.float_button, null)
+        mFloatView = LayoutInflater.from(context).inflate(R.layout.float_button, null)
 
 
         // check for android version
@@ -63,8 +61,11 @@ class FloatButtonService(
         params.y = 100
 
         mWindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        mWindowManager.addView(mFloatButton, params)
+        mWindowManager.addView(mFloatView, params)
         // WindowManager Bad token exe... need to fix
+
+        bubbleView = mFloatView.findViewById(R.id.bubble)
+        expandedView = mFloatView.findViewById(R.id.expanded_container)
 
         val width = mWindowManager.defaultDisplay.width
         val height = mWindowManager.defaultDisplay.height
@@ -73,13 +74,18 @@ class FloatButtonService(
 
         mDisplaySize.set(width, height)
 
-        mFloatButton.setOnTouchListener(object: View.OnTouchListener {
+        mFloatView.findViewById<ImageView>(R.id.no_button).setOnClickListener {
+            bubbleView.visibility = View.VISIBLE
+            expandedView.visibility = View.GONE
+        }
+
+        mFloatView.setOnTouchListener(object: View.OnTouchListener {
             var start: Long = 0
             var end: Long = 0
 
             override fun onTouch(view: View?, motionEvent: MotionEvent): Boolean {
 
-                var layoutParams = mFloatButton.layoutParams as WindowManager.LayoutParams
+                var layoutParams = mFloatView.layoutParams as WindowManager.LayoutParams
 
                 var shiftX = motionEvent.rawX.toInt()
                 var shiftY = motionEvent.rawY.toInt()
@@ -89,72 +95,72 @@ class FloatButtonService(
 
                 when (motionEvent.action) {
 
-//                    MotionEvent.ACTION_DOWN -> {
-//                        start = System.currentTimeMillis()
-//
-//                        initX = shiftX
-//                        initY = shiftY
-//
-//                        marginX = layoutParams.x
-//                        marginY = layoutParams.y
-//
-//                        return true
-//                    }
-//
-//                    MotionEvent.ACTION_UP -> {
-//
-//                        var diffX = shiftX - initX
-//                        var diffY = shiftY - initY
-//
-//                        if (abs(diffX) < 10 && abs(diffY) < 10) {
-//                            end = System.currentTimeMillis()
-//
-//                            if ((end - start) < 300) {
-//                                floatButtonClicked()
-//                            }
-//                        }
-//
-//                        destinationY = marginY + diffY
-//
-//                        if (destinationY < 0) {
-//                            destinationY = 0
-//                        }
-//
-//                        if ((destinationY + mFloatButton.height) > mDisplaySize.y) {
-//                            destinationY = mDisplaySize.y - mFloatButton.height
-//                        }
-//
-//                        layoutParams.y = destinationY
-//
-//                        changePosition(shiftX)
-//
-//                        return true
-//                    }
+                    MotionEvent.ACTION_DOWN -> {
+                        start = System.currentTimeMillis()
+
+                        initX = shiftX
+                        initY = shiftY
+
+                        marginX = layoutParams.x
+                        marginY = layoutParams.y
+
+                        return true
+                    }
+
+                    MotionEvent.ACTION_UP -> {
+
+                        var diffX = shiftX - initX
+                        var diffY = shiftY - initY
+
+                        if (abs(diffX) < 10 && abs(diffY) < 10) {
+                            end = System.currentTimeMillis()
+
+                            if ((end - start) < 300) {
+                                floatButtonClicked()
+                            }
+                        }
+
+                        destinationY = marginY + diffY
+
+                        if (destinationY < 0) {
+                            destinationY = 0
+                        }
+
+                        if ((destinationY + mFloatView.height) > mDisplaySize.y) {
+                            destinationY = mDisplaySize.y - mFloatView.height
+                        }
+
+                        layoutParams.y = destinationY
+
+                        changePosition(shiftX)
+
+                        return true
+                    }
 
                     MotionEvent.ACTION_MOVE -> {
 
-//                        layoutParams.x = shiftX + marginX - initX
-//                        layoutParams.y = shiftY + marginY - initY
+                        layoutParams.x = shiftX + marginX - initX
+                        layoutParams.y = shiftY + marginY - initY
 
-//                        if (isOnRightSide) {
-//                            layoutParams.x = mDisplaySize.x - shiftX
-//                        } else {
-//                            layoutParams.x = mDisplaySize.x - shiftX - mFloatButton.width
-//                        }
-//
-//
-//                        layoutParams.y = shiftY - mFloatButton.height
-
-
-                        if (shiftX > (mDisplaySize.x / 2)) {
-                            layoutParams.x = 0
+                        if (isOnRightSide) {
+                            layoutParams.x = mDisplaySize.x - shiftX
                         } else {
-                            layoutParams.x = mDisplaySize.x - mFloatButton.width
+                            layoutParams.x = mDisplaySize.x - shiftX - mFloatView.width
                         }
 
-                        layoutParams.y = shiftY - mFloatButton.width
 
-                        mWindowManager.updateViewLayout(mFloatButton, layoutParams)
+                        layoutParams.y = shiftY - mFloatView.height
+
+
+//                        if (shiftX > (mDisplaySize.x / 2)) {
+//                            layoutParams.x = 0
+//                        } else {
+//                            layoutParams.x = mDisplaySize.x - mFloatView.width
+//                        }
+//
+//                        layoutParams.y = shiftY - mFloatView.width
+
+                        mWindowManager.updateViewLayout(mFloatView, layoutParams)
 
                         return true
                     }
@@ -169,8 +175,21 @@ class FloatButtonService(
 
     fun floatButtonClicked() {
 
-        var toast =  Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT)
-        toast.show()
+        if (isViewCollapsed()) {
+            //When user clicks on the image view of the collapsed layout,
+            //visibility of the collapsed layout will be changed to "View.GONE"
+            //and expanded view will become visible.
+            bubbleView.setVisibility(View.GONE);
+            expandedView.setVisibility(View.VISIBLE);
+
+        }
+    }
+
+    fun isViewCollapsed(): Boolean {
+        if (mFloatView == null || mFloatView.findViewById<RelativeLayout>(R.id.bubble).visibility == View.VISIBLE) {
+            return true
+        }
+        return false
     }
 
     fun changePosition(currentX: Int) {
@@ -183,22 +202,24 @@ class FloatButtonService(
         }
     }
 
+
+
     fun moveRight(currentX: Int) {
         val timer = object: CountDownTimer(500, 5) {
-            var mParams = mFloatButton.layoutParams as WindowManager.LayoutParams
+            var mParams = mFloatView.layoutParams as WindowManager.LayoutParams
 
             override fun onTick(millisUntilFinished: Long) {
                 var step = (500 - millisUntilFinished) / 5
 
-                mParams.x = mDisplaySize.x + (currentX * currentX * step).toInt() - mFloatButton.width
+                mParams.x = mDisplaySize.x + (currentX * currentX * step).toInt() - mFloatView.width
                 //mParams.x = mDisplaySize.x + (getMoveValue(step, currentX) - mParams.width).toInt()
 
-                mWindowManager.updateViewLayout(mFloatButton, mParams)
+                mWindowManager.updateViewLayout(mFloatView, mParams)
             }
 
             override fun onFinish() {
                 mParams.x = mDisplaySize.x
-                mWindowManager.updateViewLayout(mFloatButton, mParams)
+                mWindowManager.updateViewLayout(mFloatView, mParams)
             }
         }
 
@@ -209,7 +230,7 @@ class FloatButtonService(
         var x = mDisplaySize.x - currentX
 
         val timer = object: CountDownTimer(500, 5) {
-            var mParams = mFloatButton.layoutParams as WindowManager.LayoutParams
+            var mParams = mFloatView.layoutParams as WindowManager.LayoutParams
 
             override fun onTick(millisUntilFinished: Long) {
                 var step = (500 - millisUntilFinished) / 5
@@ -217,13 +238,13 @@ class FloatButtonService(
                 mParams.x = 0 - (currentX * currentX * step).toInt()
                 //mParams.x = 0 - getMoveValue(step, x).toInt()
 
-                mWindowManager.updateViewLayout(mFloatButton, mParams)
+                mWindowManager.updateViewLayout(mFloatView, mParams)
             }
 
             override fun onFinish() {
                 mParams.x = 0
 
-                mWindowManager.updateViewLayout(mFloatButton, mParams)
+                mWindowManager.updateViewLayout(mFloatView, mParams)
             }
         }
         timer.start()
@@ -240,6 +261,10 @@ class FloatButtonService(
     fun onDestroy() {
         //super.onDestroy()
 
-        mWindowManager.removeView(mFloatButton)
+        mWindowManager.removeView(mFloatView)
     }
+
+    /*
+    TODO ak je otvorene nech sa neda hybat a je lockunty displej
+     */
 }
