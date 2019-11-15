@@ -1,5 +1,6 @@
 package com.example.chatheadskotlin
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
@@ -8,6 +9,7 @@ import android.os.CountDownTimer
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.Toast
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.exp
@@ -19,8 +21,10 @@ class FloatButtonService(
     val context: Context
 ) {
 
+    private lateinit var mLayoutInflater: LayoutInflater
+
     private lateinit var mFloatView: View
-    private lateinit var expandedView: View
+    private lateinit var acceptTaskView: View
     private lateinit var bubbleView: View
     private lateinit var mWindowManager: WindowManager
     private lateinit var mDisplaySize: Point
@@ -36,7 +40,9 @@ class FloatButtonService(
     fun onCreate() {
         //super.onCreate()
 
-        mFloatView = LayoutInflater.from(context).inflate(R.layout.float_button, null)
+        mLayoutInflater = LayoutInflater.from(context)
+
+        mFloatView = mLayoutInflater.inflate(R.layout.float_button, null)
 
 
         // check for android version
@@ -46,14 +52,16 @@ class FloatButtonService(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT)
+                PixelFormat.TRANSLUCENT
+            )
         } else {
             WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT)
+                PixelFormat.TRANSLUCENT
+            )
         }
 
         params.gravity = Gravity.TOP or Gravity.RIGHT
@@ -65,7 +73,14 @@ class FloatButtonService(
         // WindowManager Bad token exe... need to fix
 
         bubbleView = mFloatView.findViewById(R.id.bubble)
-        expandedView = mFloatView.findViewById(R.id.expanded_container)
+        //acceptTaskView = mFloatView.findViewById(R.id.expanded_container)
+
+        // TODO this should be in method
+        // find another xml layout and add to mFloatView
+        acceptTaskView =
+            mLayoutInflater.inflate(R.layout.accept_task, mFloatView as ViewGroup, false)
+
+        (mFloatView as ViewGroup).addView(acceptTaskView)
 
         val width = mWindowManager.defaultDisplay.width
         val height = mWindowManager.defaultDisplay.height
@@ -74,12 +89,17 @@ class FloatButtonService(
 
         mDisplaySize.set(width, height)
 
-        mFloatView.findViewById<ImageView>(R.id.no_button).setOnClickListener {
+        acceptTaskView.findViewById<ImageView>(R.id.no_button).setOnClickListener {
+            //unlockScreen()
             bubbleView.visibility = View.VISIBLE
-            expandedView.visibility = View.GONE
+            acceptTaskView.visibility = View.GONE
         }
 
-        mFloatView.setOnTouchListener(object: View.OnTouchListener {
+        acceptTaskView.findViewById<ImageView>(R.id.yes_button).setOnClickListener {
+            Toast.makeText(context, "YES CLICKED", Toast.LENGTH_SHORT).show()
+        }
+
+        mFloatView.setOnTouchListener(object : View.OnTouchListener {
             var start: Long = 0
             var end: Long = 0
 
@@ -174,18 +194,28 @@ class FloatButtonService(
     }
 
     fun floatButtonClicked() {
+        if (isBubbleVisible()) {
+//            lockScreen()
 
-        if (isViewCollapsed()) {
-            //When user clicks on the image view of the collapsed layout,
-            //visibility of the collapsed layout will be changed to "View.GONE"
-            //and expanded view will become visible.
-            bubbleView.setVisibility(View.GONE);
-            expandedView.setVisibility(View.VISIBLE);
-
+            bubbleView.setVisibility(View.GONE)
+            acceptTaskView.setVisibility(View.VISIBLE)
         }
     }
 
-    fun isViewCollapsed(): Boolean {
+    fun lockScreen() {
+        val activity = context as Activity
+        activity.window.setFlags(
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+        )
+    }
+
+    fun unlockScreen() {
+        val activity = context as Activity
+        activity.window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    fun isBubbleVisible(): Boolean {
         if (mFloatView == null || mFloatView.findViewById<RelativeLayout>(R.id.bubble).visibility == View.VISIBLE) {
             return true
         }
@@ -203,9 +233,8 @@ class FloatButtonService(
     }
 
 
-
     fun moveRight(currentX: Int) {
-        val timer = object: CountDownTimer(500, 5) {
+        val timer = object : CountDownTimer(500, 5) {
             var mParams = mFloatView.layoutParams as WindowManager.LayoutParams
 
             override fun onTick(millisUntilFinished: Long) {
@@ -229,7 +258,7 @@ class FloatButtonService(
     fun moveLeft(currentX: Int) {
         var x = mDisplaySize.x - currentX
 
-        val timer = object: CountDownTimer(500, 5) {
+        val timer = object : CountDownTimer(500, 5) {
             var mParams = mFloatView.layoutParams as WindowManager.LayoutParams
 
             override fun onTick(millisUntilFinished: Long) {
@@ -255,7 +284,6 @@ class FloatButtonService(
         val cos = 0.08 * step
         return scale * exp(exp) * cos(cos)
     }
-
 
 
     fun onDestroy() {

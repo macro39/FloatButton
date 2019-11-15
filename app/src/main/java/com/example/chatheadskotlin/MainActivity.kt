@@ -19,37 +19,33 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         floatButtonService = FloatButtonService(this)
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-
-            var intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION)
-        } else {
-            initializeView()
-        }
     }
 
 
     fun initializeView() {
-        findViewById<AppCompatButton>(R.id.add_header).setOnClickListener {
-//            startService(Intent(this, FloatButtonService::class.java))
-            floatButtonService.onCreate()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+
+            var intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:" + getPackageName())
+            );
+            startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION)
         }
-        findViewById<AppCompatButton>(R.id.remove_header).setOnClickListener {
-            stopService(Intent(this, FloatButtonService::class.java))
-        }
+
+        floatButtonService.onCreate()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
+        if (requestCode == CODE_DRAW_OVER_OTHER_APP_PERMISSION) {
 
-            if(Settings.canDrawOverlays(this)) {
-                initializeView()
+            if (Settings.canDrawOverlays(this)) {
+                floatButtonService.onCreate()
             } else {
-                Toast.makeText(this,
+                Toast.makeText(
+                    this,
                     "Draw over other app permission not available. Closing the application",
-                    Toast.LENGTH_SHORT).show()
+                    Toast.LENGTH_SHORT
+                ).show()
                 finish()
             }
         } else {
@@ -72,6 +68,6 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        floatButtonService.onCreate()
+        initializeView()
     }
 }
