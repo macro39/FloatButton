@@ -6,6 +6,8 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
 import android.os.CountDownTimer
+import android.text.Selection.moveLeft
+import android.text.Selection.moveRight
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -26,6 +28,8 @@ class FloatButtonService(
     private lateinit var mFloatView: View
     private lateinit var acceptTaskView: View
     private lateinit var bubbleView: View
+    private lateinit var welcomeView: View
+
     private lateinit var mWindowManager: WindowManager
     private lateinit var mDisplaySize: Point
 
@@ -36,6 +40,8 @@ class FloatButtonService(
 
     private var marginX: Int = 0
     private var marginY: Int = 0
+
+    private var isInStudy: Boolean = false
 
     fun onCreate() {
         //super.onCreate()
@@ -82,6 +88,11 @@ class FloatButtonService(
 
         (mFloatView as ViewGroup).addView(acceptTaskView)
 
+        welcomeView =
+            mLayoutInflater.inflate(R.layout.welcome_screen, mFloatView as ViewGroup, false)
+
+        (mFloatView as ViewGroup).addView(welcomeView)
+
         val width = mWindowManager.defaultDisplay.width
         val height = mWindowManager.defaultDisplay.height
 
@@ -96,7 +107,14 @@ class FloatButtonService(
         }
 
         acceptTaskView.findViewById<ImageView>(R.id.yes_button).setOnClickListener {
-            Toast.makeText(context, "YES CLICKED", Toast.LENGTH_SHORT).show()
+            isInStudy = true
+            welcomeView.visibility = View.VISIBLE
+            acceptTaskView.visibility = View.GONE
+        }
+
+        welcomeView.findViewById<ImageView>(R.id.close_welcome_screen).setOnClickListener {
+            bubbleView.visibility = View.VISIBLE
+            welcomeView.visibility = View.GONE
         }
 
         mFloatView.setOnTouchListener(object : View.OnTouchListener {
@@ -194,11 +212,15 @@ class FloatButtonService(
     }
 
     fun floatButtonClicked() {
+        if (isInStudy) {
+            Toast.makeText(context, "HINTS", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (isBubbleVisible()) {
 //            lockScreen()
-
-            bubbleView.setVisibility(View.GONE)
-            acceptTaskView.setVisibility(View.VISIBLE)
+            bubbleView.visibility = View.GONE
+            acceptTaskView.visibility = View.VISIBLE
         }
     }
 
@@ -216,10 +238,7 @@ class FloatButtonService(
     }
 
     fun isBubbleVisible(): Boolean {
-        if (mFloatView == null || mFloatView.findViewById<RelativeLayout>(R.id.bubble).visibility == View.VISIBLE) {
-            return true
-        }
-        return false
+        return mFloatView.findViewById<RelativeLayout>(R.id.bubble).visibility == View.VISIBLE
     }
 
     fun changePosition(currentX: Int) {
