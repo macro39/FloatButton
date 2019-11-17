@@ -6,8 +6,6 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
 import android.os.CountDownTimer
-import android.text.Selection.moveLeft
-import android.text.Selection.moveRight
 import android.view.*
 import android.widget.ImageView
 import android.widget.RelativeLayout
