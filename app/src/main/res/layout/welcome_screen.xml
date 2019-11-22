@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/colorPrimary"
+    android:background="@color/lightGreen"
     android:gravity="center"
     android:orientation="horizontal"
     android:padding="8dp"
@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:text="Vitajte v studii"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/darkGreen"
             android:textSize="14sp" />
 
         <TextView
@@ -30,7 +30,7 @@
             android:text="Dakujeme!"
             android:lines="2"
             android:singleLine="false"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/pink"
             android:textSize="11sp" />
 
     </LinearLayout>

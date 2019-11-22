@@ -11,6 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ScreeningQuestionnaireActivity"></activity>
+        <activity android:name=".ConsentActivity" />
+        <activity android:name=".GlobalMessageActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,9 +23,7 @@
         </activity>
         <activity
             android:name=".FloatButtonActivity"
-            android:label="Chat with Android">
-
-        </activity>
+            android:label="Chat with Android" />
     </application>
 
 </manifest>
