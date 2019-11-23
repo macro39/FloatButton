@@ -5,22 +5,18 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 
-class ScreeningQuestionnaireActivity : AppCompatActivity() {
+class InstructionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_screening_questionnaire)
+        setContentView(R.layout.activity_instruction)
 
-        val buttonNext = findViewById<Button>(R.id.button_screening_questionnaire_next)
+        val buttonNext = findViewById<Button>(R.id.button_instruction_next)
 
         buttonNext.setOnClickListener {
-            val intent = Intent(this, WelcomeMessageActivity::class.java)
+            val intent = Intent(this, ThankYouMessageActivity::class.java)
             startActivity(intent)
             finish()
         }
-
-    }
-
-    override fun onBackPressed() {
     }
 }

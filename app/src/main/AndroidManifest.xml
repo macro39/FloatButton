@@ -11,7 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ScreeningQuestionnaireActivity"></activity>
+        <activity android:name=".ThankYouMessageActivity"></activity>
+        <activity android:name=".InstructionActivity" />
+        <activity android:name=".WelcomeMessageActivity" />
+        <activity android:name=".ScreeningQuestionnaireActivity" />
         <activity android:name=".ConsentActivity" />
         <activity android:name=".GlobalMessageActivity" />
         <activity android:name=".MainActivity">
